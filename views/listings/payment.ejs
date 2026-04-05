@@ -1,0 +1,56 @@
+<!-- <% layout("/layout/boilerplate") -%>
+<div class="container my-5 text-center">
+  <h2 class="mb-4">💳 Secure Payment</h2>
+
+  <div class="card shadow-lg p-4 mx-auto" style="max-width: 500px">
+    <h4><%= listing.title %></h4>
+    <p class="text-muted mb-1"><%= listing.location %></p>
+    <h5 class="mt-2">Amount: ₹<%= listing.price.toLocaleString("en-IN") %></h5>
+
+    <hr />
+
+    <form
+      action="/listings/<%= listing._id %>/book/confirm"
+      method="POST"
+      id="mockPaymentForm"
+    >
+      <div class="mb-3 text-start">
+        <label class="form-label fw-bold">Select Payment Method</label>
+        <select class="form-select" required>
+          <option value="" disabled selected>Choose an option</option>
+          <option>UPI</option>
+          <option>Credit / Debit Card</option>
+          <option>Net Banking</option>
+          <option>Wallet</option>
+        </select>
+      </div>
+
+      <div id="processing" class="my-3" style="display: none">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="mt-2">Processing payment...</p>
+      </div>
+
+      <button type="submit" id="payBtn" class="btn btn-primary w-100">
+        Pay ₹<%= listing.price %>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById("mockPaymentForm");
+  const processing = document.getElementById("processing");
+  const payBtn = document.getElementById("payBtn");
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    payBtn.disabled = true;
+    processing.style.display = "block";
+    payBtn.innerText = "Processing...";
+
+    // Simulate payment delay
+    setTimeout(() => {
+      form.submit(); // Redirects to confirmation page
+    }, 3000);
+  });
+</script> -->

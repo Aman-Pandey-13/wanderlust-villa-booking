@@ -1,0 +1,21 @@
+<% layout("/layout/boilerplate") -%>
+<div class="text-center mt-5">
+    <h3>🎟 Booking Confirmed!</h3>
+    <p><b>Booking ID:</b>
+        <%= receipt.bookingId %>
+    </p>
+    <p><b>Listing ID:</b>
+        <%= receipt.listingId %>
+    </p>
+    <p><b>Amount Paid:</b>
+        <%= receipt.amount %>
+    </p>
+    <p><b>Date:</b>
+        <%= receipt.date %>
+    </p>
+    <p><b>Sent To:</b>
+        <%= receipt.contact %>
+    </p>
+    <hr>
+    <p>Thank you for booking! Enjoy your museum visit 🏛️</p>
+</div>

@@ -1,0 +1,803 @@
+<% layout("/layout/boilerplate") -%>
+
+  <!-- CSS / libs -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #f6f7fb;
+    }
+
+    .container {
+      max-width: 1100px;
+    }
+
+    /* Progress bar */
+    .stepper {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .step {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+
+    .step-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 18px;
+      height: 3px;
+      background: #e9ecef;
+      z-index: 0;
+    }
+
+    .step:first-child .step-line {
+      display: none;
+    }
+
+    .circle {
+      z-index: 1;
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 8px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #e9ecef;
+      color: #495057;
+      font-weight: 600;
+    }
+
+    .step.active .circle {
+      background: #0d6efd;
+      color: #fff;
+    }
+
+    .step.completed .circle {
+      background: #198754;
+      color: #fff;
+    }
+
+    .step p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #6c757d;
+    }
+
+    /* cards */
+    .card-custom {
+      border-radius: 14px;
+      padding: 22px;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(15, 15, 15, 0.04);
+      margin-bottom: 18px;
+    }
+
+    .summary-card {
+      position: sticky;
+      top: 90px;
+    }
+
+    /* option card */
+    .option-card {
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid #e9ecef;
+      cursor: pointer;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+
+    .option-card.active {
+      border-color: #0d6efd;
+      background: #eef5ff;
+      box-shadow: 0 6px 18px rgba(13, 110, 253, 0.06);
+    }
+
+    .option-card h6 {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .option-card small {
+      color: #6c757d;
+      display: block;
+      margin-top: 6px;
+    }
+
+    .option-date {
+      margin-top: 8px;
+    }
+
+    /* flatpickr tweaks */
+    .flatpickr-calendar {
+      border-radius: 10px !important;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange,
+    .flatpickr-day.selected {
+      background: #0d6efd !important;
+      color: #fff !important;
+      border-radius: 6px !important;
+    }
+  </style>
+
+  <div class="container my-5">
+    <h2 class="mb-3 text-center">Book — <%= listing.title %>
+    </h2>
+
+    <!-- Progress bar -->
+    <div class="stepper">
+      <div class="step active" data-step="1" id="stepIndicator-1">
+        <div class="step-line"></div>
+        <div class="circle">1</div>
+        <p>Dates</p>
+      </div>
+      <div class="step" data-step="2" id="stepIndicator-2">
+        <div class="step-line"></div>
+        <div class="circle">2</div>
+        <p>Guests</p>
+      </div>
+      <div class="step" data-step="3" id="stepIndicator-3">
+        <div class="step-line"></div>
+        <div class="circle">3</div>
+        <p>Specials & Events</p>
+      </div>
+      <div class="step" data-step="4" id="stepIndicator-4">
+        <div class="step-line"></div>
+        <div class="circle">4</div>
+        <p>Summary</p>
+      </div>
+      <div class="step" data-step="5" id="stepIndicator-5">
+        <div class="step-line"></div>
+        <div class="circle">5</div>
+        <p>Payment</p>
+      </div>
+    </div>
+
+    <div class="row gx-4">
+      <!-- Left: content -->
+      <div class="col-md-8">
+
+        <form id="bookingForm" action="/listings/<%= listing._id %>/book" method="POST">
+
+          <!-- Step 1: Dates -->
+          <div class="card-custom step-content" data-step="1">
+            <label class="form-label fw-bold">Select Check-in & Check-out Dates</label>
+            <input type="text" id="dateRange" name="dateRange" placeholder="Select date range" required>
+            <div class="d-flex justify-content-between">
+              <div></div>
+              <div class="mt-3">
+                <button type="button" id="checkAvailabilityBtn" class="btn btn-outline-primary">
+                  Check Availability
+                </button>
+                <span id="availabilityMsg" class="ms-2"></span>
+              </div>
+
+              <button type="button" class="btn btn-primary next-btn" data-next="2">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Guests -->
+          <div class="card-custom step-content d-none" data-step="2">
+            <h5 class="mb-3">Guests</h5>
+            <% const guestLimits={ Adults: 5, Children: 5, Infants: 3, Pets: 3 }; %>
+              <% Object.entries(guestLimits).forEach(([type, limit])=> { %>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <div><strong>
+                      <%= type %>
+                    </strong> <small class="text-muted">(max <%= limit %>)</small></div>
+                  <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm guest-btn"
+                      data-field="<%= type.toLowerCase() %>" data-change="-1" data-limit="<%= limit %>">−</button>
+                    <input type="number" id="<%= type.toLowerCase() %>" name="<%= type.toLowerCase() %>"
+                      value="<%= type==='Adults'?1:0 %>" min="0" class="form-control text-center" style="width:70px"
+                      readonly>
+                    <button type="button" class="btn btn-outline-secondary btn-sm guest-btn"
+                      data-field="<%= type.toLowerCase() %>" data-change="1" data-limit="<%= limit %>">+</button>
+                  </div>
+                </div>
+                <% }) %>
+                  <div class="d-flex justify-content-between">
+                    <button type="button" class="btn btn-secondary prev-btn" data-prev="1">Back</button>
+                    <button type="button" class="btn btn-primary next-btn" data-next="3">Next</button>
+                  </div>
+          </div>
+
+          <!-- Step 3: Specials & Events -->
+          <div class="card-custom step-content d-none" data-step="3">
+            <div class="mb-4">
+              <h5 class="mb-2">✨ Make Your Stay Special</h5>
+              <div id="specials-container">
+                <div class="option-card none-option" data-id="none-special" data-price="0">
+                  <h6>None</h6>
+                  <small>No extras</small>
+                </div>
+                <% const specials=[ { id: "pool" , label: "Pool Party" , desc: "Music, drinks & pool" , price: 1000 }, {
+                  id: "dj" , label: "DJ Night" , desc: "Private DJ experience" , price: 3000 }, { id: "dinner" ,
+                  label: "Candlelight Dinner" , desc: "Romantic dinner setup" , price: 1200 }, { id: "spa" ,
+                  label: "Spa Setup" , desc: "In-room spa" , price: 1500 } ]; %>
+                  <% specials.forEach(s=> { %>
+                    <div class="option-card" data-id="<%= s.id %>" data-price="<%= s.price %>">
+                      <h6>
+                        <%= s.label %> (+₹<%= s.price %>)
+                      </h6>
+                      <small>
+                        <%= s.desc %>
+                      </small>
+                      <input type="text" class="form-control option-date hidden mt-2" data-for="<%= s.id %>"
+                        placeholder="Select date" readonly>
+                    </div>
+                    <% }) %>
+              </div>
+            </div>
+
+            <div>
+              <h5 class="mb-2">🎉 Free Events</h5>
+              <div id="events-container">
+                <div class="option-card none-option" data-id="none-event" data-price="0">
+                  <h6>None</h6>
+                  <small>No events</small>
+                </div>
+                <% const events=[ { id: "pottery" , label: "Pottery" , desc: "Clay workshop" }, { id: "games" ,
+                  label: "Games" , desc: "Indoor & outdoor games" }, { id: "yoga" , label: "Yoga Session" ,
+                  desc: "Morning yoga" }, { id: "cooking" , label: "Cooking Class" , desc: "Local recipes" }, {
+                  id: "tour" , label: "Local Tour" , desc: "Guided city walk" }, { id: "bonfire" , label: "Bonfire" ,
+                  desc: "Evening bonfire" } ]; %>
+                  <% events.forEach(e=> { %>
+                    <div class="option-card" data-id="<%= e.id %>" data-price="0">
+                      <h6>
+                        <%= e.label %>
+                      </h6>
+                      <small>
+                        <%= e.desc %>
+                      </small>
+                      <input type="text" class="form-control option-date hidden mt-2" data-for="<%= e.id %>"
+                        placeholder="Select date" readonly>
+                    </div>
+                    <% }) %>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between mt-3">
+              <button type="button" class="btn btn-secondary prev-btn" data-prev="2">Back</button>
+              <button type="button" class="btn btn-primary next-btn" data-next="4">Next</button>
+            </div>
+          </div>
+          <!-- Step 4: Review / Summary -->
+          <div class="card-custom step-content d-none" data-step="4">
+            <h5 class="mb-3">Review Your Trip</h5>
+            <div id="summaryContent"></div>
+            <div class="d-flex justify-content-between mt-3">
+              <button type="button" class="btn btn-secondary prev-btn" data-prev="3">Back</button>
+              <button type="button" class="btn btn-success next-btn" data-next="5">Proceed to
+                Payment</button>
+            </div>
+          </div>
+
+          <!-- Step 5: Payment -->
+          <!-- Step 5: Payment -->
+          <div class="card-custom step-content d-none" data-step="5">
+            <h5 class="mb-3">Payment</h5>
+            <p>Scan the QR code below or choose Cash on Arrival.</p>
+
+            <!-- UPI QR Code -->
+            <div class="text-center mb-3">
+              <img src="/images/upi-qr.png" alt="UPI QR Code" class="img-fluid" style="max-width:200px;">
+              <p class="mt-2 text-muted">Scan to pay via UPI</p>
+            </div>
+
+            <!-- Payment Options -->
+            <div class="d-flex flex-column gap-2">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="upi" value="UPI" checked>
+                <label class="form-check-label" for="upi">UPI Payment</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="paymentMethod" id="cash" value="Cash">
+                <label class="form-check-label" for="cash">Cash on Arrival</label>
+              </div>
+            </div>
+
+            <div class="mt-3 d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary prev-btn" data-prev="4">Back</button>
+              <button type="submit" id="confirmBookingBtn" class="btn btn-primary">Confirm Booking</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Right: live summary -->
+      <div class="col-md-4">
+        <div class="card-custom summary-card">
+          <h5 class="text-center mb-3">Your Trip Summary</h5>
+          <div id="liveSummary">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap + Flatpickr scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- <script>
+    document.getElementById("bookingForm").addEventListener("submit", async function (e) {
+      e.preventDefault(); // stop form temporarily
+
+      const form = this;
+      const listingId = "<%= listing._id %>";
+      const dateRange = document.getElementById("dateRange").value;
+
+      if (!dateRange.includes(" to ")) {
+        alert("Please select check-in and check-out dates first!");
+        return;
+      }
+
+      const [checkIn, checkOut] = dateRange.split(" to ").map(d => d.trim());
+
+      try {
+        // 🔍 Check availability via backend
+        const res = await fetch(`/listings/${listingId}/check-availability?checkIn=${checkIn}&checkOut=${checkOut}`);
+        const data = await res.json();
+
+        if (!data.available) {
+          alert("🚫 " + data.message);
+          return; // stop here if not available
+        }
+
+        // ✅ If available, now safely submit form
+        form.submit();
+
+      } catch (err) {
+        console.error("Error checking availability:", err);
+        alert("Something went wrong while checking availability. Try again!");
+      }
+    });
+  </script> -->
+
+
+
+  <script>
+    (function () {
+      // Globals
+      const PRICE_PER_NIGHT = parseInt("<%= listing.price || 2000 %>", 10);
+      let checkIn = null, checkOut = null;
+
+      // Stepper helpers
+      const stepIndicators = document.querySelectorAll('.step');
+      function setActiveStep(n) {
+        stepIndicators.forEach(el => {
+          el.classList.remove('active', 'completed');
+          const s = parseInt(el.dataset.step, 10);
+          if (s < n) el.classList.add('completed');
+          if (s === n) el.classList.add('active');
+        });
+        // show/hide step contents
+        document.querySelectorAll('.step-content').forEach(c => c.classList.add('d-none'));
+        const show = document.querySelector('.step-content[data-step="' + n + '"]');
+        if (show) show.classList.remove('d-none');
+      }
+
+      // init page at step 1
+      setActiveStep(1);
+
+      // Next / Prev buttons
+      document.querySelectorAll('.next-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const next = parseInt(btn.dataset.next, 10);
+          const current = getCurrentStep();
+
+          // Step 1: Dates - prevent going next if not available
+          if (current === 1) {
+            if (!checkIn || !checkOut) {
+              alert("Please select check-in and check-out dates.");
+              return;
+            }
+
+            if (!isAvailable) {
+              alert("🚫 This villa is already booked for those dates. Please select different dates.");
+              return;
+            }
+          }
+
+          if (!validateStep(current)) return;
+          updateSummaryContent();
+          setActiveStep(next);
+          if (next === 3) initOptionDatePickers();
+        });
+      });
+
+      document.querySelectorAll('.prev-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const prev = parseInt(btn.dataset.prev, 10);
+          setActiveStep(prev);
+        });
+      });
+
+      // determine current step index
+      function getCurrentStep() {
+        for (const el of document.querySelectorAll('.step')) if (el.classList.contains('active')) return parseInt(el.dataset.step, 10);
+        return 1;
+      }
+
+      // Validate per-step
+      function validateStep(step) {
+        if (step === 1) {
+          if (!checkIn || !checkOut) { alert("Please select check-in and check-out dates."); return false; }
+          return true;
+        }
+        if (step === 2) {
+          const adults = parseInt(document.getElementById('adults').value, 10);
+          if (!adults || adults < 1) { alert("At least 1 adult required."); return false; }
+          return true;
+        }
+        if (step === 3) {
+          // if any option-card active (except none-option), ensure its date is filled
+          const activeCards = Array.from(document.querySelectorAll('#specials-container .option-card.active, #events-container .option-card.active'))
+            .filter(c => !c.classList.contains('none-option'));
+          for (const c of activeCards) {
+            const input = c.querySelector('.option-date');
+            if (input && !input.value) { alert("Please select date for selected specials/events."); return false; }
+          }
+          return true;
+        }
+        return true;
+      }
+
+      // FLATPICKR: main calendar (inline, 2 months)
+      flatpickr("#dateRange", {
+        mode: "range",
+        minDate: "today",
+        dateFormat: "Y-m-d",
+        inline: true,
+        showMonths: 2,
+        onChange: function (selectedDates) {
+          if (selectedDates.length === 2) {
+            checkIn = selectedDates[0];
+            checkOut = selectedDates[1];
+          } else {
+            checkIn = null; checkOut = null;
+          }
+          updateSummaryContent();
+          // update any open option-date pickers min/max
+          updateOptionDatePickersRange();
+        }
+      });
+
+      // Guest buttons
+      document.querySelectorAll('.guest-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const field = btn.dataset.field;
+          const change = parseInt(btn.dataset.change, 10);
+          const limit = parseInt(btn.dataset.limit, 10);
+          const input = document.getElementById(field);
+          let val = parseInt(input.value, 10) + change;
+          if (val < 0) val = 0;
+          if (val > limit) val = limit;
+          input.value = val;
+          updateSummaryContent();
+        });
+      });
+
+      // Option-card click handling with 'None' mutual exclusion
+      function wireOptionCards(containerSelector, noneClassId) {
+        const container = document.querySelector(containerSelector);
+        if (!container) return;
+        container.querySelectorAll('.option-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const isNone = card.classList.contains('none-option');
+            const cards = container.querySelectorAll('.option-card');
+            if (isNone) {
+              // activate this none and deactivate others
+              cards.forEach(c => {
+                c.classList.remove('active');
+                const inp = c.querySelector('.option-date');
+                if (inp) { inp.classList.add('hidden'); inp.value = ""; }
+              });
+              card.classList.add('active');
+            } else {
+              // toggle this, and deactivate the none-option
+              card.classList.toggle('active');
+              const none = container.querySelector('.none-option');
+              if (none) none.classList.remove('active');
+              const inp = card.querySelector('.option-date');
+              if (card.classList.contains('active')) {
+                if (inp) { inp.classList.remove('hidden'); initializeOrUpdatePicker(inp); }
+              } else {
+                if (inp) { inp.classList.add('hidden'); inp.value = ""; }
+              }
+            }
+            updateSummaryContent();
+          });
+        });
+      }
+      wireOptionCards('#specials-container');
+      wireOptionCards('#events-container');
+
+      // Option date pickers initialization / update
+      function initializeOrUpdatePicker(input) {
+        // if flatpickr instance exists, update range; else init
+        if (input._flatpickr) {
+          input._flatpickr.set('minDate', checkIn || 'today');
+          input._flatpickr.set('maxDate', checkOut || null);
+        } else {
+          flatpickr(input, { dateFormat: "Y-m-d", minDate: checkIn || 'today', maxDate: checkOut || null });
+        }
+      }
+      function initOptionDatePickers() {
+        document.querySelectorAll('.option-date').forEach(input => {
+          if (!input.classList.contains('hidden')) initializeOrUpdatePicker(input);
+        });
+      }
+      function updateOptionDatePickersRange() {
+        document.querySelectorAll('.option-date').forEach(input => {
+          if (input._flatpickr) {
+            input._flatpickr.set('minDate', checkIn || 'today');
+            input._flatpickr.set('maxDate', checkOut || null);
+          }
+        });
+      }
+
+      // Summary content (both right panel and step 4 review)
+      function updateSummaryContent() {
+        const nights = calculateNights();
+        const adults = parseInt(document.getElementById('adults').value, 10) || 0;
+        const children = parseInt(document.getElementById('children').value, 10) || 0;
+        const infants = parseInt(document.getElementById('infants').value, 10) || 0;
+        const pets = parseInt(document.getElementById('pets').value, 10) || 0;
+
+        // base price
+        const baseTotal = PRICE_PER_NIGHT * nights;
+
+        // extras (specials only have price)
+        let extras = 0;
+        let specialsHTML = '';
+        let eventsHTML = '';   // <-- FIX: Initialize this variable
+
+        document.querySelectorAll('#specials-container .option-card.active').forEach(card => {
+          if (card.classList.contains('none-option')) return;
+          const price = parseInt(card.dataset.price || 0);
+          const label = card.querySelector('h6').innerText;
+          const dateVal = (card.querySelector('.option-date') || {}).value || 'No date';
+          extras += price;
+          specialsHTML += `<li>${label} — ${dateVal} — ₹${price}</li>`;
+        });
+
+        document.querySelectorAll('#events-container .option-card.active').forEach(card => {
+          if (card.classList.contains('none-option')) return;
+          const label = card.querySelector('h6').innerText;
+          const dateVal = (card.querySelector('.option-date') || {}).value || 'No date';
+          eventsHTML += `<li>${label} — ${dateVal}</li>`;
+        });
+
+        const gst = Math.round((baseTotal + extras) * 0.18);
+        const total = baseTotal + extras + gst;
+
+        const summaryHtml = `
+      <p><strong>Check-in:</strong> ${checkIn ? formatDate(checkIn) : '—'}</p>
+      <p><strong>Check-out:</strong> ${checkOut ? formatDate(checkOut) : '—'}</p>
+      <p><strong>Nights:</strong> ${nights}</p>
+      <hr>
+      <p><strong>Guests:</strong></p>
+      <ul class="small">
+        <li>Adults: ${adults}</li>
+        <li>Children: ${children}</li>
+        <li>Infants: ${infants}</li>
+        <li>Pets: ${pets}</li>
+      </ul>
+      <hr>
+      <p><strong>Specials</strong></p>
+      <ul class="small">${specialsHTML || '<li>None</li>'}</ul>
+      <p><strong>Events</strong></p>
+      <ul class="small">${eventsHTML || '<li>None</li>'}</ul>
+      <hr>
+      <p><strong>Pricing</strong></p>
+      <div class="d-flex justify-content-between"><div>₹${PRICE_PER_NIGHT} × ${nights} nights</div><div>₹${baseTotal}</div></div>
+      <div class="d-flex justify-content-between"><div>Extras</div><div>₹${extras}</div></div>
+      <div class="d-flex justify-content-between"><div>GST (18%)</div><div>₹${gst}</div></div>
+      <div class="d-flex justify-content-between mt-2"><div><strong>Total</strong></div><div><strong>₹${total}</strong></div></div>
+    `;
+
+        // update right panel and review step
+        document.getElementById('liveSummary').innerHTML = summaryHtml;
+        const sc = document.getElementById('summaryContent');
+        if (sc) sc.innerHTML = summaryHtml;
+      }
+
+      // Helper: calculate nights
+      function calculateNights() {
+        if (!checkIn || !checkOut) return 0;
+        const ms = 1000 * 60 * 60 * 24;
+        return Math.round((checkOut - checkIn) / ms);
+      }
+      function formatDate(d) {
+        if (!d || isNaN(new Date(d).getTime())) return '';
+        const dateObj = new Date(d);
+        return dateObj.toISOString().split('T')[0];
+      }
+
+
+      // initial update
+      updateSummaryContent();
+
+      // Also update summary when option-date inputs change
+      document.addEventListener('change', function (e) {
+        if (e.target && e.target.classList && e.target.classList.contains('option-date')) {
+          updateSummaryContent();
+        }
+      });
+
+      // make sure step indicators clickable (jump)
+      document.querySelectorAll('.step').forEach(ind => {
+        ind.addEventListener('click', () => {
+          const step = parseInt(ind.dataset.step, 10);
+          // only allow jumping to steps <= currentCompleted+1
+          // But for simplicity allow jump but validate on next/submit
+          setActiveStep(step);
+        });
+      });
+
+      // expose price constant to internal code
+      const PRICE_PER_NIGHT_INTERNAL = PRICE_PER_NIGHT || PRICE_PER_NIGHT; // avoid linter warning
+      // debugging fallback
+      window._booking_debug = { PRICE_PER_NIGHT };
+
+    })();
+
+    //set
+    let isAvailable = false; // tracks whether villa is available
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const checkBtn = document.getElementById("checkAvailabilityBtn");
+      const msgEl = document.getElementById("availabilityMsg");
+      const dateInput = document.getElementById("dateRange");
+
+      checkBtn.addEventListener("click", async () => {
+        const dateRange = dateInput.value;
+        if (!dateRange || !dateRange.includes(" to ")) {
+          msgEl.textContent = "⚠️ Please select valid dates first.";
+          msgEl.style.color = "orange";
+          isAvailable = false;
+          return;
+        }
+
+        const [checkIn, checkOut] = dateRange.split(" to ").map((d) => d.trim());
+
+        try {
+          const res = await fetch(`/listings/<%= listing._id %>/check-availability?checkIn=${checkIn}&checkOut=${checkOut}`);
+          const data = await res.json();
+
+          msgEl.textContent = data.message;
+          msgEl.style.color = data.available ? "green" : "red";
+
+          isAvailable = data.available; // 🔹 store availability state globally
+
+          // disable/enable confirm button
+          const confirmBtn = document.querySelector("form button[type='submit']");
+          if (confirmBtn) confirmBtn.disabled = !data.available;
+
+        } catch (err) {
+          msgEl.textContent = "Server error checking availability.";
+          msgEl.style.color = "red";
+          isAvailable = false;
+        }
+      });
+
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("bookingForm");
+      const confirmBtn = document.getElementById("confirmBookingBtn");
+
+      if (!form || !confirmBtn) return;
+
+      confirmBtn.addEventListener("click", function (e) {
+        e.preventDefault(); // Stop instant submission
+
+        // --- Collect data for receipt ---
+        const summary = document.getElementById("summaryContent")?.innerHTML || "No summary available";
+        const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || "N/A";
+        const username = "<%= currUser?.username || 'Guest' %>"; // <-- from session
+        const villaName = "<%= listing.title %>";
+        const currentDate = new Date().toLocaleString();
+
+        // --- Build HTML for receipt ---
+        const receiptHTML = `
+      <div style="font-family:Arial,sans-serif; padding:20px; max-width:600px;">
+        <h2 style="text-align:center;">🏡 Villa Booking Receipt</h2>
+        <h4 style="text-align:center;">${villaName}</h4>
+        <p style="text-align:center; color:gray;">${currentDate}</p>
+        <hr>
+        <p><strong>Booked By:</strong> ${username}</p>
+        ${summary}
+        <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+        <p style="text-align:center;margin-top:30px;">✅ Thank you for booking with us!</p>
+      </div>
+    `;
+
+        // --- Generate PDF Receipt ---
+        const tempEl = document.createElement("div");
+        tempEl.innerHTML = receiptHTML;
+
+        html2pdf()
+          .from(tempEl)
+          .set({
+            margin: 10,
+            filename: `${username}_Villa_Booking_Receipt.pdf`,
+            html2canvas: { scale: 2 },
+            jsPDF: { orientation: "portrait" },
+          })
+          .save()
+          .then(() => {
+            // After PDF saved, submit the form
+            form.submit();
+
+            // Show success popup
+            showSuccessPopup();
+          })
+          .catch(err => {
+            console.error("PDF error:", err);
+            form.submit();
+          });
+      });
+
+      // --- Simple success popup function ---
+      function showSuccessPopup() {
+        const popup = document.createElement("div");
+        popup.innerHTML = `
+      <div style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        padding: 30px 40px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        border-radius: 15px;
+        text-align: center;
+        z-index: 9999;
+      ">
+        <h4 style="color:green;">🎉 Booking Successful!</h4>
+        <p>Your villa has been booked successfully.</p>
+        <button id="okBtn" style="
+          background-color:#007bff;
+          color:white;
+          border:none;
+          padding:8px 15px;
+          border-radius:8px;
+          cursor:pointer;
+        ">OK</button>
+      </div>
+      <div id="overlay" style="
+        position: fixed;
+        top:0; left:0;
+        width:100%; height:100%;
+        background:rgba(0,0,0,0.3);
+        z-index:9998;
+      "></div>
+    `;
+        document.body.appendChild(popup);
+
+        document.getElementById("okBtn").addEventListener("click", () => {
+          popup.remove();
+          document.getElementById("overlay")?.remove();
+        });
+
+      }
+    });
+
+  </script>

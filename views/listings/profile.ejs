@@ -1,0 +1,143 @@
+<% layout("/layout/boilerplate") -%>
+
+  <style>
+    body {
+      background-color: var(--bs-body-bg);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .profile-card {
+      background-color: var(--bs-light);
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 2rem;
+      max-width: 900px;
+      margin: 2rem auto;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    [data-bs-theme="dark"] .profile-card {
+      background-color: #2b2b2b;
+      color: #e0e0e0;
+      box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-avatar {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #fe424d, #ff7676);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+
+    .profile-info h4 {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .booking-history {
+      margin-top: 2rem;
+    }
+
+    .booking-history h5 {
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .booking-card {
+      background-color: var(--bs-body-bg);
+      border-radius: 12px;
+      padding: 1.2rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .booking-card:hover {
+      transform: scale(1.02);
+    }
+
+    [data-bs-theme="dark"] .booking-card {
+      background-color: #3a3a3a;
+    }
+  </style>
+
+  <div class="container">
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <%= user.name ? user.name[0].toUpperCase() : 'U' %>
+        </div>
+        <div class="profile-info">
+          <h4>
+            <%= user.name %>
+          </h4>
+          <p class="mb-1">
+            <i class="fa-solid fa-envelope me-2"></i>
+            <%= user.email %>
+          </p>
+        </div>
+      </div>
+
+      <div class="detail-item">
+        <strong>Member Since:</strong>
+        <span>
+          <%= new Date(user.createdAt).toLocaleDateString() %>
+        </span>
+      </div>
+
+      <div class="detail-item">
+        <strong>Total Bookings:</strong>
+        <span>
+          <%= bookings.length %>
+        </span>
+      </div>
+
+      <div class="booking-history">
+        <h4 class="mb-3">📅 Booking History</h4>
+
+        <% if (bookings.length> 0) { %>
+          <% bookings.forEach(b=> { %>
+            <div class="booking-card">
+              <h5>
+                <%= b.listing ? b.listing.title : "Deleted Listing" %>
+              </h5>
+
+              <small>
+                <i class="fa-regular fa-calendar"></i>
+                Check-in: <%= new Date(b.checkIn).toLocaleDateString() %> —
+                  Check-out: <%= new Date(b.checkOut).toLocaleDateString() %>
+              </small><br />
+
+              <small>
+                <i class="fa-solid fa-user"></i>
+                Guests:
+                <%= (b.adults || 0) + (b.children || 0) + (b.infants || 0) + (b.pets || 0) %>
+              </small><br />
+
+              <small>
+                <i class="fa-solid fa-indian-rupee-sign"></i>
+                Total: ₹<%= b.amount || 0 %>
+              </small>
+            </div>
+            <% }) %>
+              <% } else { %>
+                <p class="no-bookings">You haven't made any bookings yet.</p>
+                <% } %>
+      </div>
+    </div>
+  </div>
