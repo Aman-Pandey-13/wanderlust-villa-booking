@@ -40,7 +40,7 @@ const fs = require("fs");
 const nodemailer = require("nodemailer");
 const Booking = require("./models/booking.js");
 
-const mongo_url = "mongodb://127.0.0.1:27017/wanderlust";
+const mongo_url = process.env.MONGO_URL;
 
 main()
   .then(() => {
