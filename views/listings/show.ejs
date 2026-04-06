@@ -100,7 +100,7 @@
   </div>
 
 
-  <% if (currUser && currUser._id.equals(Listing.owner._id)) { %>
+  <% if (currUser && Listing.owner && currUser._id.toString()===Listing.owner._id.toString()) { %>
     <div class="btns">
       <a href="/listings/<%= Listing._id %>/edit" class="btn btn-dark col-1 offset-3 edit-btn">Edit</a>
       <form method="post" action="/listings/<%= Listing._id %>?_method=DELETE">
