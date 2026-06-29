@@ -1,113 +1,254 @@
-🏡 Wanderlust – Online Villa Booking System
-Wanderlust is a full-stack web application that allows users to explore, list, and book villas online.
-It provides a seamless experience for both villa owners and travelers with features like authentication, image uploads, booking management, and reviews.
+# 🏡 Wanderlust – Villa Booking Platform
 
-🚀 Features
-🔐 User Authentication (Signup/Login/Logout)
-🏠 Create, Edit, Delete Villa Listings
-🖼️ Upload Multiple Images (Multer)
-🔍 Search & Live Search Functionality
-⭐ Add & Delete Reviews
-📅 Booking System with Date Availability Check
-👤 User Profile with Booking History
-💳 Basic Payment Simulation
-📢 Flash Messages for User Feedback
-🛡️ Secure Sessions with Passport.js
+A modern full-stack villa booking platform inspired by Airbnb, built using **Node.js, Express.js, MongoDB, and EJS**. The platform enables users to discover unique villas, create listings, upload images, leave reviews, and manage bookings through a secure authentication system.
 
-🛠️ Tech Stack
-Frontend:
-EJS (Embedded JavaScript Templates)
-HTML, CSS, JavaScript
-Backend:
-Node.js
-Express.js
-Database:
-MongoDB with Mongoose
-Authentication:
-Passport.js (Local Strategy)
-Other Tools & Libraries:
-Multer (File Upload)
-Cloudinary (Storage - configured)
-Express Session & Connect-Mongo
-Connect Flash
-Method Override
+---
 
-📂 Project Structure
-Wanderlust/
+## 📌 Overview
+
+Wanderlust is a full-stack web application that allows property owners to publish villa listings while enabling travelers to explore accommodations from different locations.
+
+The project follows the **MVC Architecture** and includes authentication, authorization, image uploads, location mapping, reviews, session management, and responsive UI.
+
+---
+
+## ✨ Features
+
+### 👤 Authentication
+
+- User Registration
+- Secure Login & Logout
+- Password Encryption
+- Session Management
+- Authorization Middleware
+
+### 🏡 Villa Listings
+
+- Create New Listings
+- Edit Existing Listings
+- Delete Listings
+- View Listing Details
+- Responsive Listing Cards
+
+### 📷 Image Upload
+
+- Cloudinary Image Storage
+- Multiple Image Upload Support
+- Optimized Image Delivery
+
+### ⭐ Reviews
+
+- Add Reviews
+- Ratings System
+- Delete Own Reviews
+
+### 📍 Maps & Location
+
+- OpenStreetMap Integration
+- Automatic Geocoding
+- Location Preview
+
+### 🛡️ Security
+
+- Input Validation using Joi
+- Authentication using Passport.js
+- Secure Sessions
+- Error Handling
+- Flash Messages
+
+### 📱 User Experience
+
+- Responsive Design
+- Mobile Friendly
+- Clean Bootstrap UI
+- Dynamic EJS Templates
+
+---
+
+# 🛠 Tech Stack
+
+## Frontend
+
+- HTML5
+- CSS3
+- Bootstrap
+- JavaScript
+- EJS
+
+## Backend
+
+- Node.js
+- Express.js
+
+## Database
+
+- MongoDB Atlas
+- Mongoose
+
+## Authentication
+
+- Passport.js
+- Passport Local
+- Express Session
+
+## Cloud Services
+
+- Cloudinary
+- OpenStreetMap
+- Nominatim API
+
+---
+
+# 📂 Project Structure
+
+```
+wanderlust-villa-booking
 │
-├── models/           # Mongoose Models (User, Listing, Review, Booking)
-├── views/            # EJS Templates
-├── public/           # Static Files (CSS, JS, Images)
-├── routes/           # Route Handlers
-├── controller/       # Business Logic
-├── middleware/       # Custom Middleware
-├── utils/            # Helper Functions
-├── app.js            # Main Server File
-└── .env              # Environment Variables
+├── controllers/
+├── models/
+├── routes/
+├── views/
+├── public/
+├── utils/
+├── middleware.js
+├── cloudConfig.js
+├── app.js
+├── package.json
+└── README.md
+```
 
-⚙️ Installation & Setup
-1️⃣ Clone the Repository
-git clone https://github.com/your-username/wanderlust.git
-cd wanderlust
-2️⃣ Install Dependencies
+---
+
+# 🚀 Installation
+
+## Clone Repository
+
+```bash
+git clone https://github.com/Aman-Pandey-13/wanderlust-villa-booking.git
+```
+
+Move into project
+
+```bash
+cd wanderlust-villa-booking
+```
+
+Install dependencies
+
+```bash
 npm install
-3️⃣ Setup Environment Variables
-Create a .env file and add:
-MONGO_URL=your_mongodb_connection_string
-SESSION_SECRET=your_secret_key
-4️⃣ Run the Application
-node app.js
-Server will run on:
-http://localhost:8080
+```
 
-📌 Key Functionalities
-🏠 Listings
-View all villas
-Create new listings with images
-Edit & delete listings (only owner)
-🔍 Search
-Full search (title, location, country)
-Live search with AJAX
-⭐ Reviews
-Add reviews to listings
-Delete reviews (only author)
-📅 Booking System
-Check availability (prevents overlapping bookings)
-Book villas with date range
-Store booking details in database
-👤 User Profile
-View personal details
-View booking history
-🔒 Authentication Flow
-Uses Passport.js Local Strategy
-Sessions stored using MongoDB
-Protected routes using middleware
-📸 Image Upload
-Multiple images supported (max 5)
-Stored locally in /public/uploads
-Only image files allowed
+Create `.env`
 
-⚠️ Error Handling
-Custom error handling middleware
-Flash messages for better UX
-Handles invalid routes (404)
-📈 Future Enhancements
-💳 Real Payment Integration (UPI/Stripe)
-📍 Map Integration (Google Maps)
-☁️ Cloud Image Storage (Full Cloudinary integration)
-📱 Responsive UI improvements
-📊 Admin Dashboard
+```env
+ATLASDB_URL=your_mongodb_connection_string
 
-🤝 Contributing
-Contributions are welcome!
-Fork the repo
-Create a new branch
-Make your changes
-Submit a pull request
+SECRET=your_session_secret
 
-📜 License
-This project is licensed under the MIT License.
-👨‍💻 Author:
-Aman Pandey
-⭐ Support
-If you like this project, give it a ⭐ on GitHub!
+CLOUD_NAME=your_cloudinary_cloud_name
+
+CLOUD_API_KEY=your_cloudinary_api_key
+
+CLOUD_API_SECRET=your_cloudinary_api_secret
+```
+
+Start Development Server
+
+```bash
+npm start
+```
+
+or
+
+```bash
+nodemon app.js
+```
+
+Open
+
+```
+http://localhost:8080/listing
+```
+
+---
+
+
+
+# 📦 Major NPM Packages
+
+- Express
+- Mongoose
+- Passport
+- Passport-local
+- Passport-local-mongoose
+- Express-session
+- Connect-flash
+- Connect-mongo
+- Joi
+- Multer
+- Cloudinary
+- Multer-storage-cloudinary
+- Dotenv
+- Method-override
+- EJS-Mate
+
+---
+
+# 📚 Concepts Used
+
+- MVC Architecture
+- RESTful Routing
+- CRUD Operations
+- Authentication & Authorization
+- Middleware
+- Sessions & Cookies
+- Form Validation
+- File Upload
+- Image Storage
+- Database Relationships
+- Error Handling
+
+---
+
+# 🔮 Future Enhancements
+
+- Online Payment Gateway
+- Wishlist
+- Booking Calendar
+- Availability Checker
+- Search & Filters
+- AI Recommendation System
+- Email Notifications
+- Admin Dashboard
+- Real-Time Chat
+
+---
+
+# 👨‍💻 Author
+
+**Aman Pandey**
+
+📧 Email
+
+```
+pandeyaman995@gmail.com
+```
+
+🔗 GitHub
+
+```
+https://github.com/Aman-Pandey-13
+```
+
+🔗 LinkedIn
+
+```
+(Add your LinkedIn URL)
+```
+
+---
+
+# ⭐ Show Your Support
+
+If you found this project useful, consider giving it a ⭐ on GitHub!
