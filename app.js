@@ -183,7 +183,7 @@ app.post(
       req.flash("error", e.message);
       res.redirect("/signup");
     }
-  })
+  }),
 );
 
 //login Route
@@ -213,7 +213,7 @@ app.post(
     req.flash("succes", "Welcome back to Wanderlust!");
     let redirectUrl = res.locals.redirectUrl || "/listings";
     res.redirect(redirectUrl);
-  }
+  },
 );
 
 //index route
@@ -263,7 +263,7 @@ app.get(
       res.redirect("/listings");
     }
     res.render("listings/show.ejs", { Listing });
-  })
+  }),
 );
 
 //Create Route
@@ -318,7 +318,7 @@ app.post(
       req.flash("error", "Something went wrong!");
       res.redirect("/listings/new");
     }
-  })
+  }),
 );
 
 //Edit Route
@@ -334,7 +334,7 @@ app.get(
       res.redirect("/listings");
     }
     res.render("listings/edit.ejs", { listings });
-  })
+  }),
 );
 
 //Update Route
@@ -353,7 +353,7 @@ app.put(
       await listing.save();
     }
     res.redirect(`/listings/${id}`);
-  })
+  }),
 );
 
 //Delete Route
@@ -367,7 +367,7 @@ app.delete(
     console.log(deleted);
     req.flash("succes", "Listing Deleted!");
     res.redirect("/listings");
-  })
+  }),
 );
 
 //Reviews
@@ -386,7 +386,7 @@ app.post(
     await listing.save();
     req.flash("succes", "New Review Added!");
     res.redirect(`/listings/${listing._id}`);
-  })
+  }),
 );
 
 // await newListing.save();
@@ -404,7 +404,7 @@ app.delete(
     await Review.findByIdAndDelete(reviewID);
     req.flash("succes", "Review Deleted!");
     res.redirect(`/listings/${id}`);
-  })
+  }),
 );
 
 // 🟢 Booking Form Page
@@ -511,7 +511,7 @@ app.post("/listings/:id/book", isLoggedIn, async (req, res) => {
     if (!dateRange || !dateRange.includes(" to ")) {
       req.flash(
         "error",
-        "❌ Please select valid check-in and check-out dates."
+        "❌ Please select valid check-in and check-out dates.",
       );
       return res.redirect(`/listings/${listingId}/book`);
     }
@@ -548,7 +548,7 @@ app.post("/listings/:id/book", isLoggedIn, async (req, res) => {
     if (overlappingBooking) {
       req.flash(
         "error",
-        "🚫 This villa is already booked for the selected dates."
+        "🚫 This villa is already booked for the selected dates.",
       );
       return res.redirect(`/listings/${listingId}/book`);
     }
@@ -566,8 +566,8 @@ app.post("/listings/:id/book", isLoggedIn, async (req, res) => {
       decorations: Array.isArray(decorations)
         ? decorations
         : decorations
-        ? [decorations]
-        : [],
+          ? [decorations]
+          : [],
       events: Array.isArray(events) ? events : events ? [events] : [],
       amount: parseFloat(amount) || 0,
     });
@@ -655,6 +655,7 @@ app.use((err, req, res, next) => {
 });
 
 //port
-app.listen(8080, () => {
-  console.log("Server Is Working");
+app.listen(8080, (req) => {
+  console.log("Server is working on port 8080");
+
 });
